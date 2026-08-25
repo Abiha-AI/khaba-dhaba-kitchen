@@ -4,7 +4,7 @@ export function ErrorState({
   message,
 }: {
   onRetry: () => void;
-  message?: string;
+  message?: string | undefined;
 }) {
   return (
     <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-8 text-center">
