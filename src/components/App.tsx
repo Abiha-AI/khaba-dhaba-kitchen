@@ -1,66 +1,47 @@
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import type { RecipeOutput, RecipeRequest } from "@/types/recipe";
+import { generateRecipe, type RecipeErrorCode } from "@/lib/recipe.functions";
 import { RecipeForm } from "./RecipeForm";
 import { RecipeResult } from "./RecipeResult";
 import { LoadingState } from "./LoadingState";
 import { ErrorState } from "./ErrorState";
 
-// Mock data stands in for the future API response (same RecipeOutput shape).
-const MOCK_RECIPE: RecipeOutput = {
-  recipe_name: "Dhaba-Style Chicken Karahi",
-  description:
-    "A bubbling karahi built on tomatoes, ginger and green chilies, finished the way roadside dhabas do it. Smoky, tangy and unapologetically bold.",
-  prep_time: "45 minutes",
-  difficulty: "Medium",
-  servings: 4,
-  ingredients_used: [
-    "Chicken (bone-in, 1 kg)",
-    "Tomatoes (4, roughly chopped)",
-    "Onions (2, sliced)",
-    "Green chilies (5, slit)",
-    "Yogurt (1/2 cup)",
-    "Garlic and ginger paste",
-  ],
-  missing_ingredients: [
-    "Coriander seeds (crushed)",
-    "Kasuri methi",
-    "Fresh coriander for garnish",
-    "Julienned ginger",
-  ],
-  steps: [
-    "Heat oil in a karahi or heavy wok until shimmering, then sear the chicken on high heat until golden on all sides.",
-    "Add garlic and ginger paste and fry for a minute until the raw smell disappears.",
-    "Tip in the tomatoes with a pinch of salt, cover, and let them collapse into a thick masala for 10 minutes.",
-    "Whisk the yogurt smooth and stir it in slowly on low heat so it doesn't split.",
-    "Add crushed coriander seeds, red chili and slit green chilies. Bhunno on high heat until the oil separates.",
-    "Crush kasuri methi between your palms over the karahi, scatter julienned ginger and coriander, and rest for 5 minutes before serving.",
-  ],
-  nutrition_estimate: {
-    calories_per_serving: "520 kcal",
-    protein: "42 g",
-    carbs: "12 g",
-    fats: "34 g",
-  },
-  chef_tip:
-    "Never rush the bhunnai. When the oil pools at the edges of the karahi, that's the moment the masala is ready — not a minute before.",
-  serving_suggestion:
-    "Hot tandoori naan or roghni roti, a sharp onion-lemon salad, and a glass of salted lassi on the side.",
-};
-
 type View = "form" | "loading" | "result" | "error";
+
+// Friendly, in-character messages per failure mode.
+const ERROR_MESSAGES: Record<RecipeErrorCode, string> = {
+  rate_limit: "The chef is a bit overwhelmed right now, try again in a moment",
+  bad_shape: "The recipe came out a bit garbled. Let's try that again?",
+  network: "Couldn't reach the kitchen — check your connection and try again.",
+  server: "Oops, the stove got too hot. Try again?",
+};
 
 export function App() {
   const [view, setView] = useState<View>("form");
   const [recipe, setRecipe] = useState<RecipeOutput | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
-  // Simulates the future API call so the loading state is visible.
-  const handleSubmit = (req: RecipeRequest) => {
+  const askTheChef = useServerFn(generateRecipe);
+
+  // Real call to the secure server function that talks to Gemini.
+  const handleSubmit = async (req: RecipeRequest) => {
     setView("loading");
-    setTimeout(() => {
-      setRecipe({ ...MOCK_RECIPE, servings: req.servings });
-      setView("result");
-    }, 1600);
+    try {
+      const result = await askTheChef({ data: req });
+      if (result.ok) {
+        setRecipe(result.recipe);
+        setView("result");
+      } else {
+        setErrorMessage(ERROR_MESSAGES[result.code]);
+        setView("error");
+      }
+    } catch {
+      setErrorMessage(ERROR_MESSAGES.network);
+      setView("error");
+    }
   };
+
 
   return (
     <main className="min-h-screen bg-background px-4 py-12 sm:py-16">
