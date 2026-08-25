@@ -61,7 +61,7 @@ export function App() {
 
       {view === "form" && <RecipeForm onSubmit={handleSubmit} />}
       {view === "loading" && <LoadingState />}
-      {view === "error" && <ErrorState onRetry={() => setView("form")} />}
+      {view === "error" && <ErrorState message={errorMessage} onRetry={() => setView("form")} />}
       {view === "result" && recipe && (
         <RecipeResult recipe={recipe} onStartOver={() => setView("form")} />
       )}
