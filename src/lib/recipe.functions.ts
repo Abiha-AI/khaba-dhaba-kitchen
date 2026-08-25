@@ -4,13 +4,12 @@ import type { RecipeOutput, RecipeRequest } from "@/types/recipe";
 // Error codes the frontend maps to friendly messages.
 export type RecipeErrorCode = "rate_limit" | "bad_shape" | "server" | "network";
 
-export class RecipeError extends Error {
-  code: RecipeErrorCode;
-  constructor(code: RecipeErrorCode, message: string) {
-    super(message);
-    this.code = code;
-  }
-}
+// Returned as data (not thrown) so the code survives the RPC boundary.
+export type RecipeResponse =
+  | { ok: true; recipe: RecipeOutput }
+  | { ok: false; code: RecipeErrorCode };
+
+const fail = (code: RecipeErrorCode): RecipeResponse => ({ ok: false, code });
 
 const SYSTEM_PROMPT =
   "You are a loving Pakistani home cook who has been cooking for 30 years. Given the user's ingredients, restrictions, meal type, time, and servings, suggest ONE authentic Pakistani recipe. Prioritize desi ingredients and cooking methods. You must ONLY return valid JSON matching the schema. Do not use markdown code blocks. If ingredients are insufficient, suggest desi substitutions (e.g., if no ghee, use oil; if no chicken, use lentils). Keep the tone warm, encouraging, and slightly motherly.";
@@ -80,16 +79,16 @@ function isRecipeOutput(value: unknown): value is RecipeOutput {
 }
 
 function validateRequest(input: RecipeRequest): RecipeRequest {
-  if (!input?.ingredients?.trim()) throw new RecipeError("server", "Ingredients are required.");
-  if (!(input.minutes > 0)) throw new RecipeError("server", "Time must be greater than zero.");
+  if (!input?.ingredients?.trim()) throw new Error("Ingredients are required.");
+  if (!(input.minutes > 0)) throw new Error("Time must be greater than zero.");
   return input;
 }
 
 export const generateRecipe = createServerFn({ method: "POST" })
   .inputValidator(validateRequest)
-  .handler(async ({ data }): Promise<RecipeOutput> => {
+  .handler(async ({ data }): Promise<RecipeResponse> => {
     const apiKey = process.env["GEMINI_API_KEY"];
-    if (!apiKey) throw new RecipeError("server", "The kitchen is missing its key.");
+    if (!apiKey) return fail("server");
 
     const userPrompt = [
       `Ingredients available: ${data.ingredients}`,
@@ -118,20 +117,20 @@ export const generateRecipe = createServerFn({ method: "POST" })
         },
       );
     } catch {
-      throw new RecipeError("network", "Could not reach the kitchen.");
+      return fail("network");
     }
 
     if (response.status === 429) {
-      throw new RecipeError("rate_limit", "The chef is overwhelmed.");
+      return fail("rate_limit");
     }
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
       // Quota errors sometimes arrive as 400/403 with RESOURCE_EXHAUSTED.
       if (detail.includes("RESOURCE_EXHAUSTED") || detail.toLowerCase().includes("quota")) {
-        throw new RecipeError("rate_limit", "The chef is overwhelmed.");
+        return fail("rate_limit");
       }
       console.error("Gemini error", response.status, detail.slice(0, 500));
-      throw new RecipeError("server", "The stove refused to cooperate.");
+      return fail("server");
     }
 
     const payload = (await response.json().catch(() => null)) as {
@@ -144,11 +143,11 @@ export const generateRecipe = createServerFn({ method: "POST" })
       // Strip stray markdown fences defensively before parsing.
       parsed = JSON.parse(text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim());
     } catch {
-      throw new RecipeError("bad_shape", "The recipe came out garbled.");
+      return fail("bad_shape");
     }
 
     if (!isRecipeOutput(parsed)) {
-      throw new RecipeError("bad_shape", "The recipe came out garbled.");
+      return fail("bad_shape");
     }
-    return parsed;
+    return { ok: true, recipe: parsed };
   });
