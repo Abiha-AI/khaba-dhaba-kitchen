@@ -19,6 +19,15 @@
  */
 
 @theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Playfair Display", ui-serif, Georgia, serif;
+  --color-heading: var(--heading);
+  --color-body: var(--body);
+  --color-primary-hover: var(--primary-hover);
+  --color-saffron: var(--saffron);
+  --color-maroon: var(--maroon);
+  --color-rust: var(--rust);
+  --shadow-warm: 0 10px 30px -12px oklch(0.35 0.09 40 / 0.25);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -63,38 +72,98 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Pakistani truck art + spice bazaar palette */
+  --background: oklch(0.918 0.031 76.5); /* #F5E6D3 warm wheat */
+  --foreground: oklch(0.239 0.038 33.4); /* #2B1B17 roasted coffee */
+  --heading: oklch(0.239 0.038 33.4); /* #2B1B17 */
+  --body: oklch(0.393 0.055 42.7); /* #5C3D2E warm spice brown */
+  --card: oklch(0.968 0.017 74.9); /* #FFF5EB kheer white */
+  --card-foreground: oklch(0.239 0.038 33.4);
+  --popover: oklch(0.968 0.017 74.9);
+  --popover-foreground: oklch(0.239 0.038 33.4);
+  --primary: oklch(0.519 0.163 33.2); /* #C84B31 tandoori red */
+  --primary-foreground: oklch(0.968 0.017 74.9);
+  --primary-hover: oklch(0.467 0.155 33.2); /* 10% darker */
+  --secondary: oklch(0.878 0.049 76.9); /* #E8C9A0 sandalwood */
+  --secondary-foreground: oklch(0.239 0.038 33.4);
+  --muted: oklch(0.878 0.049 76.9);
+  --muted-foreground: oklch(0.393 0.055 42.7);
+  --accent: oklch(0.573 0.087 226.5); /* #1E88A8 truck-art turquoise */
+  --accent-foreground: oklch(0.968 0.017 74.9);
+  --saffron: oklch(0.744 0.148 71.5); /* #E9A319 */
+  --maroon: oklch(0.379 0.146 28.7); /* #8B1E1E */
+  --rust: oklch(0.539 0.126 39.1); /* #B85C38 */
+  --destructive: oklch(0.519 0.163 33.2);
+  --destructive-foreground: oklch(0.968 0.017 74.9);
+  --border: oklch(0.878 0.049 76.9); /* #E8C9A0 */
+  --input: oklch(0.878 0.049 76.9);
+  --ring: oklch(0.519 0.163 33.2);
+  --chart-1: oklch(0.519 0.163 33.2);
+  --chart-2: oklch(0.744 0.148 71.5);
+  --chart-3: oklch(0.573 0.087 226.5);
+  --chart-4: oklch(0.539 0.126 39.1);
+  --chart-5: oklch(0.379 0.146 28.7);
+  --sidebar: oklch(0.968 0.017 74.9);
+  --sidebar-foreground: oklch(0.239 0.038 33.4);
+  --sidebar-primary: oklch(0.519 0.163 33.2);
+  --sidebar-primary-foreground: oklch(0.968 0.017 74.9);
+  --sidebar-accent: oklch(0.878 0.049 76.9);
+  --sidebar-accent-foreground: oklch(0.239 0.038 33.4);
+  --sidebar-border: oklch(0.878 0.049 76.9);
+  --sidebar-ring: oklch(0.519 0.163 33.2);
+}
+
+/* Truck-art inspired border: geometric dots and lines in saffron + turquoise */
+@utility truck-art {
+  background-image:
+    radial-gradient(circle at 6px 50%, var(--saffron) 2.5px, transparent 3px),
+    radial-gradient(circle at 18px 50%, var(--accent) 2px, transparent 2.5px),
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 40%,
+      var(--primary) 40%,
+      var(--primary) 60%,
+      transparent 60%
+    );
+  background-size:
+    24px 100%,
+    24px 100%,
+    100% 100%;
+  background-repeat: repeat-x, repeat-x, no-repeat;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scaleY(0.6);
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scaleY(1.2);
+  }
+}
+
+@keyframes sizzle {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(-2deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(2deg);
+  }
+}
+
+@utility animate-steam {
+  animation: steam 1.6s ease-in-out infinite;
+}
+
+@utility animate-sizzle {
+  animation: sizzle 1.4s ease-in-out infinite;
 }
 
 .dark {
