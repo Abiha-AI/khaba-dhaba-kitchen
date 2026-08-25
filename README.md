@@ -11,7 +11,7 @@ a chef's secret and a serving suggestion.
 - TypeScript
 - Tailwind CSS v4
 - Vite 7
-- Google Gemini (`gemini-2.5-flash`) called from a secure server function
+- Google Gemini (`gemini-3.6-flash`) called from a secure server function
 
 ## How it works
 
