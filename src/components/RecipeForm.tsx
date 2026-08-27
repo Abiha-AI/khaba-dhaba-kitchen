@@ -62,7 +62,7 @@ export function RecipeForm({ onSubmit }: { onSubmit: (req: RecipeRequest) => voi
     >
       <div>
         <label className={label} htmlFor="ingredients">
-          What's in your kitchen?
+          What's in your Kitchen?
         </label>
         <textarea
           id="ingredients"
@@ -75,7 +75,7 @@ export function RecipeForm({ onSubmit }: { onSubmit: (req: RecipeRequest) => voi
       </div>
 
       <div>
-        <span className={label}>Dietary restrictions</span>
+        <span className={label}>Dietary Restrictions</span>
         <div className="flex flex-wrap gap-2">
           {DIETS.map((d) => {
             const active = diets.includes(d);
@@ -100,7 +100,7 @@ export function RecipeForm({ onSubmit }: { onSubmit: (req: RecipeRequest) => voi
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="meal">
-            Meal type
+            Meal Type
           </label>
           <select
             id="meal"
