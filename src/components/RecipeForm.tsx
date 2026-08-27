@@ -100,7 +100,7 @@ export function RecipeForm({ onSubmit }: { onSubmit: (req: RecipeRequest) => voi
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="meal">
-            Meal type
+            Meal Type
           </label>
           <select
             id="meal"
