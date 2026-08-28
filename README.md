@@ -42,8 +42,3 @@ Copy `.env.example` to `.env` and fill in:
 | `SUPABASE_URL` | Backend project URL |
 | `SUPABASE_ANON_KEY` | Public (publishable) backend key |
 
-## Gemini API key
-
-`GEMINI_API_KEY` must **never** live in `.env`, in the frontend, or in the repo.
-Add it via **Lovable Cloud (Supabase) → Secrets**. It is injected as a server-side
-environment variable and is read only inside the `generateRecipe` server handler.
